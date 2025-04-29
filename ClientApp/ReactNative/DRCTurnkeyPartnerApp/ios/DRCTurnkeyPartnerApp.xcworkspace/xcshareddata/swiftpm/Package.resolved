@@ -1,0 +1,15 @@
+{
+  "originHash" : "a0256763bdcd78e46b6ab97068c83c36b9ee815495b954f860958e1c8e68e157",
+  "pins" : [
+    {
+      "identity" : "dc-embedded-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lgottum/dc-embedded-ios-sdk",
+      "state" : {
+        "branch" : "main",
+        "revision" : "11e40fa3cbef547b2db7c038f32ac439ede2bfdc"
+      }
+    }
+  ],
+  "version" : 3
+}
