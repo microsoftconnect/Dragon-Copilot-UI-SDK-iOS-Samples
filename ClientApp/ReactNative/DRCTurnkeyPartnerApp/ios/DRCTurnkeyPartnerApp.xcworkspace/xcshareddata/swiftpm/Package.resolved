@@ -1,0 +1,15 @@
+{
+  "originHash" : "70bce3a47a62553275c194d7169c479fbdf874b725955875544a4f141800392a",
+  "pins" : [
+    {
+      "identity" : "dragon-copilot-ui-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS",
+      "state" : {
+        "branch" : "release/1.0.0",
+        "revision" : "7359aae95c10c28c024429d306a78bd26edf89a0"
+      }
+    }
+  ],
+  "version" : 3
+}
