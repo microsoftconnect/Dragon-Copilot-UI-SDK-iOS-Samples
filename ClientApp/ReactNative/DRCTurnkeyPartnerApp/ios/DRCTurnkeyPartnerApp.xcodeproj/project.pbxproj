@@ -17,6 +17,7 @@
 		3BC607382D36EAAA00563C6D /* DRCBridgeModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BC607372D36EAAA00563C6D /* DRCBridgeModule.m */; };
 		3BC92E072D4AC8A000EB488B /* DragonCopilotTurnkey in Frameworks */ = {isa = PBXBuildFile; productRef = 3BC92E062D4AC8A000EB488B /* DragonCopilotTurnkey */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		DD467C532DC26E4C00317200 /* DragonCopilotTurnkey in Frameworks */ = {isa = PBXBuildFile; productRef = DD467C522DC26E4C00317200 /* DragonCopilotTurnkey */; };
 		DDC357C32DBAD960005F60B0 /* DragonMedicalSpeechKit.bundle in Resources */ = {isa = PBXBuildFile; fileRef = DDC357C22DBAD960005F60B0 /* DragonMedicalSpeechKit.bundle */; };
 		DDEF8B2A2D52C6790064FA45 /* DRCViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DDEF8B292D52C6790064FA45 /* DRCViewManager.m */; };
 		F5123DA4CA1A89816FF7C0E1 /* libPods-DRCTurnkeyPartnerApp-DRCTurnkeyPartnerAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8774A815F7F7FB4495415EFB /* libPods-DRCTurnkeyPartnerApp-DRCTurnkeyPartnerAppTests.a */; };
@@ -88,6 +89,7 @@
 			files = (
 				3BC92E072D4AC8A000EB488B /* DragonCopilotTurnkey in Frameworks */,
 				26E371C48BF1CAD6C22370CE /* libPods-DRCTurnkeyPartnerApp.a in Frameworks */,
+				DD467C532DC26E4C00317200 /* DragonCopilotTurnkey in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +259,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				DDC357C12DBAD915005F60B0 /* XCRemoteSwiftPackageReference "dc-embedded-ios-sdk" */,
+				DD467C512DC26E4C00317200 /* XCRemoteSwiftPackageReference "Dragon-Copilot-UI-SDK-iOS" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -641,7 +643,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -714,7 +719,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -755,18 +763,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		3BC92E052D4AC70800EB488B /* XCLocalSwiftPackageReference "../../../../../Dragon-Copilot-iOS-Turnkey" */ = {
+		3BC92E052D4AC70800EB488B /* XCLocalSwiftPackageReference "Dragon-Copilot-iOS-Turnkey" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../../../../Dragon-Copilot-iOS-Turnkey";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		DDC357C12DBAD915005F60B0 /* XCRemoteSwiftPackageReference "dc-embedded-ios-sdk" */ = {
+		DD467C512DC26E4C00317200 /* XCRemoteSwiftPackageReference "Dragon-Copilot-UI-SDK-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lgottum/dc-embedded-ios-sdk";
+			repositoryURL = "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS";
 			requirement = {
-				branch = main;
+				branch = release/1.0.0;
 				kind = branch;
 			};
 		};
@@ -775,7 +783,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		3BC92E062D4AC8A000EB488B /* DragonCopilotTurnkey */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3BC92E052D4AC70800EB488B /* XCLocalSwiftPackageReference "../../../../../Dragon-Copilot-iOS-Turnkey" */;
+			package = 3BC92E052D4AC70800EB488B /* XCLocalSwiftPackageReference "Dragon-Copilot-iOS-Turnkey" */;
+			productName = DragonCopilotTurnkey;
+		};
+		DD467C522DC26E4C00317200 /* DragonCopilotTurnkey */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD467C512DC26E4C00317200 /* XCRemoteSwiftPackageReference "Dragon-Copilot-UI-SDK-iOS" */;
 			productName = DragonCopilotTurnkey;
 		};
 /* End XCSwiftPackageProductDependency section */
