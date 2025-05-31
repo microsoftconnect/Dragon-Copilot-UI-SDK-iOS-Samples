@@ -12,7 +12,7 @@ struct Constants {
     static let partnerId: String = ""
     static let organizationId: String = ""
     static let ehrUserId: String = ""
-
+    
     static let appId: String = "MobileSdkTestHarness"
     static let appVersion: String = "1.0.0"
     static let deviceId: String = UIDevice.current.model
@@ -21,7 +21,7 @@ struct Constants {
     static let defaultGeography: String = "US"
 }
 
-/// When SMART on FHIR auth is needed, pass additional identifiers, such as partnerId, customerId, productId, ehrUserId
+/// When SMART on FHIR auth is needed, pass additional identitiers, such as partnerId, customerId, productId, ehrUserId
 class Configuration: TConfigurationProvider {
     private var partnerId: String
     private var orgId: String
@@ -40,6 +40,7 @@ class Configuration: TConfigurationProvider {
         let appMetadata = TAppMetadata(appId: Constants.appId, appVersion: Constants.appVersion, deviceId: Constants.deviceId)
         let serverDetails = TServerDetails(environment: environment, geography: Constants.defaultGeography)
         return TConfiguration(appMetadata: appMetadata, serverDetails: serverDetails, partnerId: self.partnerId, customerId: self.orgId)
+        
     }
     func getTAccessTokenProvider() -> any DragonCopilotTurnkey.TAccessTokenProvider {
         return AuthProvider(partnerId: partnerId, orgId: orgId, ehrUserId: ehrUserId, enableSoF: enableSoF)
@@ -110,6 +111,7 @@ class ContentViewModel: ObservableObject {
     
     private var turnkeyInstance: TurnkeyFramework?
     private var correlationId: String = UUID().uuidString.lowercased()
+    private var enableSoF: Bool = false
     
     func initializeTurnkey(partnerId: String, orgId: String, ehrUserId: String, environment: String, enableSoF: Bool) {
         print("ContentView: Initializing Turnkey with partnerId: \(partnerId), orgId: \(orgId)")
@@ -162,6 +164,10 @@ class ContentViewModel: ObservableObject {
     }
     
     func back() {
+        if let instance = turnkeyInstance {
+            print("ContentView: Disposing of Turnkey instance")
+            instance.closeSession()
+        }
         sessionView = nil
     }
     
@@ -174,7 +180,7 @@ class ContentViewModel: ObservableObject {
             TurnkeyFramework.dispose()
         }
         
-        //turnkeyInstance = nil
+        turnkeyInstance = nil
         sessionView = nil
         turnkeyInitialized = false
         print("ContentView: Turnkey SDK de-initialized and instance removed")
@@ -182,7 +188,7 @@ class ContentViewModel: ObservableObject {
 }
 
 // MARK: - Delegate Implementations
-extension ContentViewModel: TurnKeyDelegate {
+extension ContentViewModel: TDelegate {
     func isTurnKeyWebViewLoaded(_ isLoadingDone: Bool) {
         print("ContentView: TurnKey WebView loaded: \(isLoadingDone)")
     }
@@ -222,7 +228,7 @@ extension ContentViewModel: TRecordingDelegate {
     func recordingInterrupted(reason: RecordingInterruptionReason) {
         print("ContentView: Recording interrupted: \(reason)")
     }
-        
+    
     func recordingNotification(notification: RecordingNotification) {
         print("ContentView: Recording notification received: \(notification)")
     }
@@ -289,7 +295,7 @@ struct ContentView: View {
                             TextField("EHR User Id:", text: $ehrUserId)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             
-                            TextField("Correlation Id", text: $correlationId)
+                            TextField("Correlation Id:", text: $correlationId)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             
                             Toggle("Enable SoF", isOn: $enableSoF)
