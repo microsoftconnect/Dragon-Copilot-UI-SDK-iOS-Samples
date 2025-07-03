@@ -12,7 +12,7 @@ struct Constants {
     static let partnerId: String = ""
     static let organizationId: String = ""
     static let ehrUserId: String = ""
-
+    
     static let appId: String = "MobileSdkTestHarness"
     static let appVersion: String = "1.0.0"
     static let deviceId: String = UIDevice.current.model
@@ -105,72 +105,224 @@ class AuthProvider: TAccessTokenProvider {
     }
 }
 
-struct ContentView: View {
-    @State private var path = NavigationPath()
-    @State var turnkeyInstance: TurnkeyFramework?
-    @State private var environment: String = Constants.defaultEnvironment
-    @State private var partnerId: String = Constants.partnerId
-    @State private var orgId: String = Constants.organizationId
-    @State private var ehrUserId: String = Constants.ehrUserId
-    @State private var correlationId: String = UUID().uuidString.lowercased()
-    @State private var enableSoF: Bool = false
-    @State var turnkeyInitialized: Bool = false
-    @State private var buttonClicked: Bool = false
+class ContentViewModel: ObservableObject {
+    @Published var sessionView: AnyView? = nil
+    @Published var turnkeyInitialized: Bool = false
     
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-
-                    TextField("Enviornment:", text: $environment)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    TextField("Partner Id:", text: $partnerId)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    TextField("Organization Id:", text: $orgId)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    TextField("EHR User Id:", text: $ehrUserId)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    TextField("Correlation Id", text: $correlationId)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    Toggle("Enable SoF", isOn: $enableSoF)
-                    Button("Load Session") {
-                        buttonClicked.toggle()
-                    }
-                }
-                .padding()
-            }
-            .navigationDestination(isPresented: $turnkeyInitialized, destination: {
-                loadEncounter()
-            })
-        }
-        .onChange(of: buttonClicked) { oldValue, newValue in
-            initializeTurnkey()
-        }
+    private var turnkeyInstance: TurnkeyFramework?
+    private var correlationId: String = UUID().uuidString.lowercased()
+    private var enableSoF: Bool = false
+    
+    func initializeTurnkey(partnerId: String, orgId: String, ehrUserId: String, environment: String, enableSoF: Bool) {
+        print("ContentView: Initializing Turnkey with partnerId: \(partnerId), orgId: \(orgId)")
+        
+        // Always create a new configuration
+        let configDataProvider = Configuration(
+            partnerId: partnerId,
+            orgId: orgId,
+            ehrUserId: ehrUserId,
+            environment: environment,
+            enableSoF: enableSoF
+        )
+        
+        print("ContentView: Creating new Turnkey instance")
+        turnkeyInstance = TurnkeyFramework.initialize(
+            dataProvider: configDataProvider,
+            delegate: self,
+            recordingDelegate: self,
+            dictationDelegate: self,
+            settingsDelegate: self
+        )
+        turnkeyInitialized = true
+        print("ContentView: Turnkey SDK initialized successfully")
     }
     
-    private func initializeTurnkey() {
-        if turnkeyInstance == nil {
-            let configDataProvider: Configuration = Configuration(
+    func loadEncounter(partnerId: String, orgId: String, ehrUserId: String, environment: String, correlationId: String, enableSoF: Bool) {
+        
+        if !turnkeyInitialized {
+            initializeTurnkey(
                 partnerId: partnerId,
                 orgId: orgId,
                 ehrUserId: ehrUserId,
                 environment: environment,
                 enableSoF: enableSoF
             )
-            turnkeyInstance = TurnkeyFramework.initialize(dataProvider: configDataProvider)
         }
-        turnkeyInitialized = true
+        guard let turnkeyInstance = turnkeyInstance else {
+            print("ContentView: ERROR: Turnkey instance is nil after initialization")
+            return
+        }
+        
+        print("ContentView: Loading encounter with CorrelationId: \(correlationId)...")
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            print("ContentView: Opening session...")
+            let sessionProvider = Session(correlationId: correlationId)
+            self.sessionView = AnyView(turnkeyInstance.openSession(sessionDataProvider: sessionProvider))
+            print("ContentView: Session view loaded successfully")
+        }
     }
     
-    private func loadEncounter() -> some View {
-        return turnkeyInstance?.openSession(sessionDataProvider: Session(correlationId: correlationId))
+    func back() {
+        if let instance = turnkeyInstance {
+            print("ContentView: Disposing of Turnkey instance")
+            instance.closeSession()
+        }
+        sessionView = nil
+    }
+    
+    func logout() {
+        print("ContentView: Logging out...")
+        
+        // Properly dispose of the instance
+        if let instance = turnkeyInstance {
+            print("ContentView: Disposing of Turnkey instance")
+            TurnkeyFramework.dispose()
+        }
+        
+        turnkeyInstance = nil
+        sessionView = nil
+        turnkeyInitialized = false
+        print("ContentView: Turnkey SDK de-initialized and instance removed")
     }
 }
 
-#Preview {
-    ContentView()
+// MARK: - Delegate Implementations
+extension ContentViewModel: TDelegate {
+    func isTurnKeyWebViewLoaded(_ isLoadingDone: Bool) {
+        print("ContentView: TurnKey WebView loaded: \(isLoadingDone)")
+    }
+    
+    func logout(with logoutType: LogoutReason) {
+        print("ContentView: Logout triggered with reason: \(logoutType == .user ? "User" : "Inactivity")")
+    }
+}
+
+extension ContentViewModel: TSettingsDelegate {
+    func appearanceThemeChanged(to uiTheme: String) {
+        print("ContentView: Appearance theme changed to: \(uiTheme)")
+    }
+    
+    func isIdleTimerDisabled(isOn screenOn: Bool) {
+        print("ContentView: screen on while recording: \(screenOn)")
+    }
+    
+    func changeApplicationLanguage(to languageCode: String) {
+        print("ContentView: Application Language Changed: \(String(describing: languageCode))")
+    }
+}
+
+extension ContentViewModel: TRecordingDelegate {
+    func recordingStarted() {
+        print("ContentView: Recording started")
+    }
+    
+    func recordingFailed() {
+        print("ContentView: Recording failed")
+    }
+    
+    func recordingStopped() {
+        print("ContentView: Recording stopped")
+    }
+    
+    func recordingInterrupted(reason: RecordingInterruptionReason) {
+        print("ContentView: Recording interrupted: \(reason)")
+    }
+    
+    func recordingNotification(notification: RecordingNotification) {
+        print("ContentView: Recording notification received: \(notification)")
+    }
+}
+
+extension ContentViewModel: TDictationDelegate {
+    func dictationStarted() {
+        print("ContentView: Dictation started")
+    }
+    
+    func dictationStopped() {
+        print("ContentView: Dictation stopped")
+    }
+}
+
+struct ContentView: View {
+    @StateObject private var viewModel = ContentViewModel()
+    @State private var environment: String = Constants.defaultEnvironment
+    @State private var partnerId: String = Constants.partnerId
+    @State private var orgId: String = Constants.organizationId
+    @State private var ehrUserId: String = Constants.ehrUserId
+    @State private var correlationId: String = UUID().uuidString.lowercased()
+    @State private var enableSoF: Bool = false
+    
+    var body: some View {
+        NavigationStack {
+            Group {
+                if let sessionView = viewModel.sessionView {
+                    sessionView
+                        .ignoresSafeArea()
+                        .navigationBarBackButtonHidden(true)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button(action: {
+                                    viewModel.back()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "chevron.left")
+                                            .font(.system(size: 20, weight: .semibold))
+                                        Text("Back")
+                                            .font(.system(size: 17, weight: .semibold))
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(Color.black.opacity(0.3))
+                                    .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .toolbarBackground(.visible, for: .navigationBar)
+                        .toolbarBackground(Color.black.opacity(0.3), for: .navigationBar)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            TextField("Environment:", text: $environment)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            TextField("Partner Id:", text: $partnerId)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            TextField("Organization Id:", text: $orgId)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            TextField("EHR User Id:", text: $ehrUserId)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            TextField("Correlation Id:", text: $correlationId)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            Toggle("Enable SoF", isOn: $enableSoF)
+                            
+                            HStack(spacing: 16) {
+                                Button("Logout") {
+                                    viewModel.logout()
+                                }
+                                .buttonStyle(.bordered)
+                                
+                                Button("Load") {
+                                    viewModel.loadEncounter(
+                                        partnerId: partnerId,
+                                        orgId: orgId,
+                                        ehrUserId: ehrUserId,
+                                        environment: environment,
+                                        correlationId: correlationId,
+                                        enableSoF: enableSoF
+                                    )
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                        .padding()
+                    }
+                }
+            }
+        }
+    }
 }

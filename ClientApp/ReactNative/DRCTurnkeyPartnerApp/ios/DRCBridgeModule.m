@@ -11,7 +11,14 @@
 #import <DragonCopilotTurnkey/DragonCopilotTurnkey-Swift.h>
 #import "AuthProvider.h"
 
-@interface DRCBridgeModule () <TSessionDataProvider, TConfigurationProvider>
+@interface DRCBridgeModule () <
+  TSessionDataProvider,
+  TConfigurationProvider,
+  TDelegate,
+  TRecordingDelegate,
+  TDictationDelegate,
+  TSettingsDelegate
+>
 @end
 
 @implementation DRCBridgeModule {
@@ -30,10 +37,10 @@ RCT_EXPORT_MODULE();
   TAppMetadata *appMetadata = [[TAppMetadata alloc] initWithAppId:@"Turnkey"
                                                        appVersion:@"1.0.0"
                                                         deviceId:@"TurnkeyShell"];
-  TServerDetails *serverDetails = [[TServerDetails alloc] initWithEnvironment: @"qa_internal" geography:@"US" cloudInstance:NULL];
+  TServerDetails *serverDetails = [[TServerDetails alloc] initWithEnvironment: @"qa" geography:@"US" cloudInstance:NULL];
                                    
                                    
-  return [[TConfiguration alloc] initWithAppMetadata: appMetadata serverDetails: serverDetails partnerId: NULL customerId:NULL ehrInstanceId: NULL productId:NULL];
+  return [[TConfiguration alloc] initWithAppMetadata: appMetadata serverDetails: serverDetails partnerId: NULL customerId:NULL ehrInstanceId: NULL productId:NULL traceId: NULL];
 }
 
 - (TUser * _Nonnull)getTUser {
@@ -60,7 +67,8 @@ RCT_EXPORT_MODULE();
 // Used to initialize the Turnkey SDK
 RCT_EXPORT_METHOD(initTurnkeySdk) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    self.turnkeySdk = [TurnkeyFramework initializeWithDataProvider:self delegate:nil recordingDelegate:nil dictationDelegate:nil];
+    self.turnkeySdk = [TurnkeyFramework initializeWithDataProvider:self 
+          delegate:self recordingDelegate:self dictationDelegate:self settingsDelegate:self];
   });
 }
 
@@ -102,6 +110,63 @@ RCT_EXPORT_METHOD(disposeSdk) {
 
 - (id<TAccessTokenProvider> _Nonnull)getTAccessTokenProvider {
   return  [[AuthProvider alloc] init];
+}
+
+#pragma mark - TDelegate
+
+- (void)isTurnKeyWebViewLoaded:(BOOL)isLoadingDone {
+  NSLog(@"[TDelegate] WebView loaded: %@", isLoadingDone ? @"YES" : @"NO");
+}
+
+- (void)logoutWith:(LogoutReason)logoutType {
+  NSString *reason = logoutType == LogoutReasonUser ? @"User" : @"Inactivity";
+  NSLog(@"[TDelegate] Logout occurred. Reason: %@", reason);
+}
+
+#pragma mark - TRecordingDelegate
+
+- (void)recordingStarted {
+  NSLog(@"[TRecordingDelegate] Recording started");
+}
+
+- (void)recordingFailed {
+  NSLog(@"[TRecordingDelegate] Recording failed");
+}
+
+- (void)recordingStopped {
+  NSLog(@"[TRecordingDelegate] Recording stopped");
+}
+
+- (void)recordingInterruptedWithReason:(RecordingInterruptionReason)reason {
+  NSLog(@"[TRecordingDelegate] Recording interrupted. Reason: %ld", (long)reason);
+}
+
+- (void)recordingNotificationWithNotification:(RecordingNotification)notification {
+  NSLog(@"[TRecordingDelegate] Recording notification. Notification: %ld", (long)notification);
+}
+
+#pragma mark - TDictationDelegate
+
+- (void)dictationStarted {
+  NSLog(@"[TDictationDelegate] Dictation started");
+}
+
+- (void)dictationStopped {
+  NSLog(@"[TDictationDelegate] Dictation stopped");
+}
+
+#pragma mark - TSettingsDelegate
+
+- (void)isIdleTimerDisabledIsOn:(BOOL)screenOn {
+  NSLog(@"[TSettingsDelegate] Idle timer disabled: %@", screenOn ? @"YES" : @"NO");
+}
+
+- (void)appearanceThemeChangedTo:(NSString *)uiTheme {
+  NSLog(@"[TSettingsDelegate] Appearance theme changed to: %@", uiTheme);
+}
+
+- (void)changeApplicationLanguageTo:(NSString *)languageCode {
+  NSLog(@"[TSettingsDelegate] Change application language to: %@", languageCode);
 }
 
 @end
