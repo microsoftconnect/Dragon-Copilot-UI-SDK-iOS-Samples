@@ -1,5 +1,10 @@
 # Dragon-Copilot-UI-SDK-iOS-Samples
 
+This repository provides sample applications demonstrating integration with the Dragon-Copilot-UI-SDK-iOS repository. It includes a `Tools` directory containing essential build resources and supplementary files required for proper SDK functionality.
+
+**Important:** This repository is classified as non-production. For production use, parties must either (A) work with repository owners to upgrade to production classification or (B) fork the repository, assume ownership, classify as production, and complete applicable compliance tasks per their division requirements.
+
+
 ## Introduction
 
 Dragon Copilot Embedded for Mobile is an SDK that you can integrate with your iOS apps. When initialized, the SDK launches the Dragon Copilot web UI and gives your app access to the full suite of Dragon Copilot features and capabilities.
