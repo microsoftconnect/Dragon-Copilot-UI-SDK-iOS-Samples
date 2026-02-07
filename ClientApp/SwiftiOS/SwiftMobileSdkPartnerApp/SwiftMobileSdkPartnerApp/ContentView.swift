@@ -21,83 +21,86 @@ struct Constants {
     static let defaultGeography: String = "US"
 }
 
-/// When SMART on FHIR auth is needed, pass additional identitiers, such as partnerId, customerId, productId, ehrUserId
-class Configuration: TConfigurationProvider {
+// MARK: - Configuration Provider
+
+class Configuration: ConfigurationProvider {
     private var partnerId: String
     private var orgId: String
     private var ehrUserId: String
     private var environment: String
-    private var enableSoF: Bool?
+    private var authProvider: AuthProvider
     
-    init(partnerId: String, orgId: String, ehrUserId: String, environment: String, enableSoF: Bool? = false) {
+    init(partnerId: String, orgId: String, ehrUserId: String, environment: String) {
         self.partnerId = partnerId
         self.orgId = orgId
         self.ehrUserId = ehrUserId
         self.environment = environment
-        self.enableSoF = enableSoF
+        self.authProvider = AuthProvider(orgId: orgId, ehrUserId: ehrUserId)
     }
-    func getTConfiguration() -> DragonCopilotTurnkey.TConfiguration {
-        let appMetadata = TAppMetadata(appId: Constants.appId, appVersion: Constants.appVersion, deviceId: Constants.deviceId)
-        let serverDetails = TServerDetails(environment: environment, geography: Constants.defaultGeography)
-        return TConfiguration(appMetadata: appMetadata, serverDetails: serverDetails, partnerId: self.partnerId, customerId: self.orgId)
-        
+    
+    func getConfiguration() -> DragonCopilotTurnkey.ApplicationConfigProvider {
+        let appMetadata = ClientAppInfo(appId: Constants.appId, appVersion: Constants.appVersion, deviceId: Constants.deviceId)
+        let serverDetails = ServerInfo(environment: environment, geography: Constants.defaultGeography)
+        return ApplicationConfigProvider(
+            clientAppInfo: appMetadata,
+            serverInfo: serverDetails,
+            providerName: "DragonCopilot",
+            isInternalClient: false,
+            authType: .partnerToken,
+            partnerId: self.partnerId,
+            customerId: self.orgId
+        )
     }
-    func getTAccessTokenProvider() -> any DragonCopilotTurnkey.TAccessTokenProvider {
-        return AuthProvider(partnerId: partnerId, orgId: orgId, ehrUserId: ehrUserId, enableSoF: enableSoF)
+    
+    func getAccessTokenProvider() -> any DragonCopilotTurnkey.AppAccessTokenProvider {
+        return authProvider
     }
-    func getTUser() -> TUser {
-        return TUser(ehrUserId: self.ehrUserId)
+    
+    func getUserInfo() -> UserInfo {
+        return UserInfo(ehrUserId: self.ehrUserId)
     }
 }
 
-class Session: TSessionDataProvider {
+// MARK: - Session Provider
+
+class Session: SessionDataProvider {
     var correlationId: String
     
     init(correlationId: String) {
         self.correlationId = correlationId
     }
-    func getTPatient() -> DragonCopilotTurnkey.TPatient {
-        return TPatient(fhirId: UUID().uuidString.lowercased())
+    
+    func getPatientInfo() -> DragonCopilotTurnkey.PatientInfo {
+        return PatientInfo(fhirId: UUID().uuidString.lowercased(), firstName: "John", lastName: "Doe", gender: "male")
     }
     
-    func getTVisit() -> DragonCopilotTurnkey.TVisit {
-        return TVisit(fhirId: UUID().uuidString.lowercased(), correlationId: correlationId)
+    func getVisitInfo() -> DragonCopilotTurnkey.VisitInfo {
+        return VisitInfo(fhirId: UUID().uuidString.lowercased(), correlationId: correlationId)
     }
+    
     func setCorrelationId(correlationId: String) {
         self.correlationId = correlationId
     }
 }
 
-class AuthProvider: TAccessTokenProvider {
+// MARK: - Auth Provider
+
+class AuthProvider: AppAccessTokenProvider {
     private let tokenService: JWTTokenService
-    private var partnerId: String?
-    private var orgId: String?
-    private var ehrUserId: String?
-    private var enableSoF: Bool?
+    private var orgId: String
+    private var ehrUserId: String
     
-    init(partnerId: String?, orgId: String?, ehrUserId: String?, enableSoF: Bool?) {
-        self.partnerId = partnerId
+    init(orgId: String, ehrUserId: String) {
         self.orgId = orgId
         self.ehrUserId = ehrUserId
         self.tokenService = JWTTokenService()
     }
-    func accessToken(scopes: [String]?, forceRefresh: Bool, onSuccess: @escaping (TAuthResponse) -> Void, onFailure: @escaping (Error) -> Void) {
+    
+    func accessToken(scopes: [String]?, forceRefresh: Bool, onSuccess: @escaping (ClientTokenProvider) -> Void, onFailure: @escaping (Error) -> Void) {
         Task {
             do {
-                let (token, issuer, launch) = try await tokenService.fetchAccessToken(patnerId: partnerId, orgId: orgId, ehrUserId: ehrUserId, enableSoF: enableSoF)
-                if enableSoF ?? false{
-                    guard let issuer = issuer, let launch = launch else {
-                        onFailure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Issuer or launch is nil for SoF"]))
-                        return
-                    }
-                    onSuccess(TAuthResponse(sofTokenResponse: TSoFTokenResponse(token: token, issuer: issuer, launch: launch)))
-                } else {
-                    guard let token = token else {
-                        onFailure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Token is empty"]))
-                        return
-                    }
-                    onSuccess(TAuthResponse(tokenResponse: TTokenResponse(token: token)))
-                }
+                let token = try await tokenService.fetchAccessToken(orgId: orgId, ehrUserId: ehrUserId)
+                onSuccess(ClientTokenProvider(clientToken: ClientToken(token: token)))
             } catch {
                 onFailure(error as NSError)
             }
@@ -105,50 +108,68 @@ class AuthProvider: TAccessTokenProvider {
     }
 }
 
+// MARK: - View Model
+
 class ContentViewModel: ObservableObject {
     @Published var sessionView: AnyView? = nil
     @Published var turnkeyInitialized: Bool = false
     
-    private var turnkeyInstance: TurnkeyFramework?
-    private var correlationId: String = UUID().uuidString.lowercased()
-    private var enableSoF: Bool = false
+    private var appConfigInstance: ApplicationConfig?
+    private var configDataProvider: Configuration?
+    var correlationId: String = UUID().uuidString.lowercased()
     
-    func initializeTurnkey(partnerId: String, orgId: String, ehrUserId: String, environment: String, enableSoF: Bool) {
+    private func shutdownSDK(context: String) {
+        print("ContentView: Shutting down SDK with context=\(context)")
+        if let instance = appConfigInstance {
+            instance.closeSession()
+        }
+        ApplicationConfig.clearInstance()
+        appConfigInstance = nil
+        sessionView = nil
+        turnkeyInitialized = false
+        configDataProvider = nil
+    }
+    
+    func initializeTurnkey(partnerId: String, orgId: String, ehrUserId: String, environment: String) {
         print("ContentView: Initializing Turnkey with partnerId: \(partnerId), orgId: \(orgId)")
         
-        // Always create a new configuration
         let configDataProvider = Configuration(
             partnerId: partnerId,
             orgId: orgId,
             ehrUserId: ehrUserId,
-            environment: environment,
-            enableSoF: enableSoF
+            environment: environment
         )
+        self.configDataProvider = configDataProvider
         
-        print("ContentView: Creating new Turnkey instance")
-        turnkeyInstance = TurnkeyFramework.initialize(
-            dataProvider: configDataProvider,
-            delegate: self,
-            recordingDelegate: self,
-            dictationDelegate: self,
-            settingsDelegate: self
-        )
-        turnkeyInitialized = true
-        print("ContentView: Turnkey SDK initialized successfully")
+        do {
+            print("ContentView: Creating new Turnkey instance")
+            appConfigInstance = try ApplicationConfig.getInstance(
+                dataProvider: configDataProvider,
+                delegate: self,
+                recordingDelegate: self,
+                dictationDelegate: self,
+                settingsDelegate: self
+            )
+            turnkeyInitialized = true
+            print("ContentView: Turnkey SDK initialized successfully")
+        } catch {
+            print("ContentView: Error initializing Turnkey: \(error)")
+            appConfigInstance = nil
+            turnkeyInitialized = false
+            sessionView = nil
+        }
     }
     
-    func loadEncounter(partnerId: String, orgId: String, ehrUserId: String, environment: String, correlationId: String, enableSoF: Bool) {
-        
+    func loadEncounter(partnerId: String, orgId: String, ehrUserId: String, environment: String, correlationId: String) {
         if !turnkeyInitialized {
             initializeTurnkey(
                 partnerId: partnerId,
                 orgId: orgId,
                 ehrUserId: ehrUserId,
-                environment: environment,
-                enableSoF: enableSoF
+                environment: environment
             )
         }
-        guard let turnkeyInstance = turnkeyInstance else {
+        guard let instance = appConfigInstance else {
             print("ContentView: ERROR: Turnkey instance is nil after initialization")
             return
         }
@@ -156,49 +177,36 @@ class ContentViewModel: ObservableObject {
         print("ContentView: Loading encounter with CorrelationId: \(correlationId)...")
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            print("ContentView: Opening session...")
-            let sessionProvider = Session(correlationId: correlationId)
-            self.sessionView = AnyView(turnkeyInstance.openSession(sessionDataProvider: sessionProvider))
-            print("ContentView: Session view loaded successfully")
+            do {
+                print("ContentView: Opening session...")
+                self.sessionView = AnyView(instance.openSession(sessionDataProvider: Session(correlationId: correlationId)))
+                print("ContentView: Session view loaded successfully")
+            } catch {
+                print("ContentView: Error opening session: \(error)")
+                self.sessionView = nil
+            }
         }
-    }
-    
-    func back() {
-        if let instance = turnkeyInstance {
-            print("ContentView: Disposing of Turnkey instance")
-            instance.closeSession()
-        }
-        sessionView = nil
     }
     
     func logout() {
         print("ContentView: Logging out...")
-        
-        // Properly dispose of the instance
-        if let instance = turnkeyInstance {
-            print("ContentView: Disposing of Turnkey instance")
-            TurnkeyFramework.dispose()
-        }
-        
-        turnkeyInstance = nil
+        shutdownSDK(context: "userLogout")
+    }
+    
+    func back() {
         sessionView = nil
-        turnkeyInitialized = false
-        print("ContentView: Turnkey SDK de-initialized and instance removed")
     }
 }
 
 // MARK: - Delegate Implementations
-extension ContentViewModel: TDelegate {
-    func isTurnKeyWebViewLoaded(_ isLoadingDone: Bool) {
+
+extension ContentViewModel: AppUiDelegate {
+    func webViewLoaded(_ isLoadingDone: Bool) {
         print("ContentView: TurnKey WebView loaded: \(isLoadingDone)")
-    }
-    
-    func logout(with logoutType: LogoutReason) {
-        print("ContentView: Logout triggered with reason: \(logoutType == .user ? "User" : "Inactivity")")
     }
 }
 
-extension ContentViewModel: TSettingsDelegate {
+extension ContentViewModel: AppSettingsDelegate {
     func appearanceThemeChanged(to uiTheme: String) {
         print("ContentView: Appearance theme changed to: \(uiTheme)")
     }
@@ -212,7 +220,7 @@ extension ContentViewModel: TSettingsDelegate {
     }
 }
 
-extension ContentViewModel: TRecordingDelegate {
+extension ContentViewModel: AppRecordingDelegate {
     func recordingStarted() {
         print("ContentView: Recording started")
     }
@@ -225,16 +233,16 @@ extension ContentViewModel: TRecordingDelegate {
         print("ContentView: Recording stopped")
     }
     
-    func recordingInterrupted(reason: RecordingInterruptionReason) {
-        print("ContentView: Recording interrupted: \(reason)")
+    func recordingInterrupted(reason: RecordingStopReason) {
+        print("ContentView: Recording interrupted: \(reason.rawValue.description)")
     }
     
-    func recordingNotification(notification: RecordingNotification) {
+    func recordingNotification(notification: RecordingProgressNotification) {
         print("ContentView: Recording notification received: \(notification)")
     }
 }
 
-extension ContentViewModel: TDictationDelegate {
+extension ContentViewModel: AppDictationDelegate {
     func dictationStarted() {
         print("ContentView: Dictation started")
     }
@@ -251,8 +259,7 @@ struct ContentView: View {
     @State private var orgId: String = Constants.organizationId
     @State private var ehrUserId: String = Constants.ehrUserId
     @State private var correlationId: String = UUID().uuidString.lowercased()
-    @State private var enableSoF: Bool = false
-    
+
     var body: some View {
         NavigationStack {
             Group {
@@ -298,8 +305,6 @@ struct ContentView: View {
                             TextField("Correlation Id:", text: $correlationId)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             
-                            Toggle("Enable SoF", isOn: $enableSoF)
-                            
                             HStack(spacing: 16) {
                                 Button("Logout") {
                                     viewModel.logout()
@@ -312,8 +317,7 @@ struct ContentView: View {
                                         orgId: orgId,
                                         ehrUserId: ehrUserId,
                                         environment: environment,
-                                        correlationId: correlationId,
-                                        enableSoF: enableSoF
+                                        correlationId: correlationId
                                     )
                                 }
                                 .buttonStyle(.bordered)

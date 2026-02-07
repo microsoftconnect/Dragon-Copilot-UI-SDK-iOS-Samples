@@ -10,17 +10,17 @@
 
 - (void)accessTokenWithScopes:(nullable NSArray<NSString *> *)scopes
                     forceRefresh:(BOOL)forceRefresh
-                    onSuccess:(void (^)(TAuthResponse *authResponse))onSuccess
+                    onSuccess:(void (^)(ClientTokenProvider *tokenProvider))onSuccess
                     onFailure:(void (^)(NSError *error))onFailure {
     
     // Extract the token from the JSON response
     NSString *token = @"";
     if (token) {
       NSLog(@"Token is found in response");
-      // Create a TTokenResponse object
-      TTokenResponse *tokenResponse = [[TTokenResponse alloc] initWithToken:token];
-      TAuthResponse *authResponse = [[TAuthResponse alloc] initWithTokenResponse:tokenResponse];
-      onSuccess(authResponse);
+      // Create a ClientToken object
+      ClientToken *clientToken = [[ClientToken alloc] initWithToken:token];
+      ClientTokenProvider *tokenProvider = [[ClientTokenProvider alloc] initWithClientToken:clientToken clientEntraToken:NULL clientSoFToken:NULL];
+      onSuccess(tokenProvider);
     } else {
       NSLog(@"Token not found in response");
       NSError *tokenError = [NSError errorWithDomain:@"AuthProviderErrorDomain" code:1001 userInfo:@{NSLocalizedDescriptionKey: @"Token not found in response"}];

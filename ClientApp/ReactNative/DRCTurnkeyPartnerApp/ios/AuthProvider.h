@@ -8,17 +8,17 @@
 #import <DragonCopilotTurnkey/DragonCopilotTurnkey-Swift.h>
 NS_ASSUME_NONNULL_BEGIN
 
-@interface AuthProvider : NSObject <TAccessTokenProvider>
+@interface AuthProvider : NSObject <AppAccessTokenProvider>
 
 /// Retrieves an access token for authentication.
 /// - Parameters:
 ///   - scopes: Optional array of scopes for token generation.
 ///   - forceRefresh: A boolean indicating whether to forcefully refresh the token, ignoring any cached token.
-///   - onSuccess: The callback that returns a TAuthResponse object if the token is successfully retrieved.
+///   - onSuccess: The callback that returns a ClientTokenProvider object if the token is successfully retrieved.
 ///   - onFailure: The callback that returns an NSError object if token retrieval fails.
-- (void)accessTokenWithScope:(nullable NSArray<NSString *> *)scopes
+- (void)accessTokenWithScopes:(nullable NSArray<NSString *> *)scopes
                     forceRefresh:(BOOL)forceRefresh
-                    onSuccess:(void (^)(TAuthResponse *authResponse))onSuccess
+                    onSuccess:(void (^)(ClientTokenProvider *tokenProvider))onSuccess
                     onFailure:(void (^)(NSError *error))onFailure;
 
 @end

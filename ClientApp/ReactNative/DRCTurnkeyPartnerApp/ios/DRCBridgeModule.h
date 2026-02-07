@@ -13,7 +13,7 @@
 
 @interface DRCBridgeModule : RCTEventEmitter <RCTBridgeModule>
 
-@property (nonatomic, strong) TurnkeyFramework *turnkeySdk;
+@property (nonatomic, strong) ApplicationConfig *appConfigApi;
 
 @end
 
