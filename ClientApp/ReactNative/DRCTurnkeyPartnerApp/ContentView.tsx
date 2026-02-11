@@ -18,7 +18,7 @@ const ContentView = () => {
 
   const initializeTurnkey = () => {
     if (!turnkeyInitialized) {
-      DRCBridgeModule.initTurnkeySdk();
+      DRCBridgeModule.initEmbeddedUiSdk();
       setTurnkeyInitialized(true);
     }
     setSessionOpened(true);
