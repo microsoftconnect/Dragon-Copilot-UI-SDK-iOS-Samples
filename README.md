@@ -84,4 +84,4 @@ To include the DragonMedicalSpeechKit bundle resources in your application:
    - Find and select the `DragonMedicalSpeechKit.bundle` file from the Tools directory
    - Click "Add"
 
-**Note:** These SpeechKit resources are essential for proper speech recognition functionality and must be included in your app bundle for the SDK to work correctly.
+**Note:** These SpeechKit resources are essential for proper speech recognition functionality and must be included in your app bundle for the SDK to work correctly
