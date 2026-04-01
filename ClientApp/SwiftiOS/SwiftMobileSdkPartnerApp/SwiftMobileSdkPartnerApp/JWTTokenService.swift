@@ -9,16 +9,8 @@ import DragonCopilotTurnkey
 
 class JWTTokenService {
     
-    func fetchAccessToken(patnerId: String?, orgId: String?, ehrUserId: String?, enableSoF: Bool? = false) async throws -> (String?, String?, String?) {
-        
-        if enableSoF ?? false {
-            let token = ""
-            let issuer = ""
-            let launch = ""
-            return (token, issuer, launch)
-        } else {
-            let token = ""
-            return (token, nil, nil)
-        }
+    func fetchAccessToken(orgId: String, ehrUserId: String) async throws -> String {
+        let token = ""
+        return token
     }
 }

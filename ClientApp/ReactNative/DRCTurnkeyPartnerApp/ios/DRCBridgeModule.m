@@ -12,19 +12,19 @@
 #import "AuthProvider.h"
 
 @interface DRCBridgeModule () <
-  TSessionDataProvider,
-  TConfigurationProvider,
-  TDelegate,
-  TRecordingDelegate,
-  TDictationDelegate,
-  TSettingsDelegate
+  SessionDataProvider,
+  ConfigurationProvider,
+  AppUiDelegate,
+  AppRecordingDelegate,
+  AppDictationDelegate,
+  AppSettingsDelegate
 >
 @end
 
 @implementation DRCBridgeModule {
 }
 
-@synthesize turnkeySdk = _turnkeySdk;
+@synthesize appConfigApi = _appConfigApi;
 
 RCT_EXPORT_MODULE();
 
@@ -33,28 +33,25 @@ RCT_EXPORT_MODULE();
 //  return @[@"onGetTPatient", @"onGetTConfiguration", @"onGetTVisit", @"onGetTUser", @"onAccessToken"];
 }
 
-- (TConfiguration * _Nonnull)getTConfiguration {
-  TAppMetadata *appMetadata = [[TAppMetadata alloc] initWithAppId:@"Turnkey"
-                                                       appVersion:@"1.0.0"
-                                                        deviceId:@"TurnkeyShell"];
-  TServerDetails *serverDetails = [[TServerDetails alloc] initWithEnvironment: @"qa" geography:@"US" cloudInstance:NULL];
-                                   
-                                   
-  return [[TConfiguration alloc] initWithAppMetadata: appMetadata serverDetails: serverDetails partnerId: NULL customerId:NULL ehrInstanceId: NULL productId:NULL traceId: NULL];
+- (ApplicationConfigProvider * _Nonnull)getConfiguration {
+  ClientAppInfo *appMetadata = [[ClientAppInfo alloc] initWithAppId:@"Turnkey" appVersion:@"1.0.0" deviceId:@"TurnkeyShell"];
+  ServerInfo *serverDetails = [[ServerInfo alloc] initWithEnvironment:@"qa" geography:@"US" cloudInstance:nil];
+  
+  return [[ApplicationConfigProvider alloc] initWithClientAppInfo:appMetadata serverInfo:serverDetails providerName:@"DragonCopilot" isInternalClient:false authType:AuthTypePartnerToken userInfo:nil partnerId:NULL customerId:NULL ehrInstanceId:nil productId:nil traceId:nil];
 }
 
-- (TUser * _Nonnull)getTUser {
-  TUser *user = [[TUser alloc] initWithId:NULL fhirId:@"" firstName:NULL middleName:NULL lastName:NULL ehrUserId:NULL];
+- (UserInfo * _Nonnull)getUserInfo {
+  UserInfo *user = [[UserInfo alloc] initWithId:NULL fhirId:@"" firstName:NULL middleName:NULL lastName:NULL ehrUserId:NULL];
   return user;
 }
 
-- (TPatient * _Nonnull)getTPatient {
-  return [[TPatient alloc] initWithId:NULL fhirId:@"" firstName:NULL lastName:NULL middleName:NULL gender:NULL birthDate: NULL medicalRecordNumber:NULL];
+- (PatientInfo * _Nonnull)getPatientInfo {
+  return [[PatientInfo alloc] initWithId:NULL fhirId:[NSUUID UUID].UUIDString firstName:@"John" lastName:@"Doe" middleName:NULL gender:@"male" birthDate:NULL medicalRecordNumber:NULL];
 }
 
-- (TVisit * _Nonnull)getTVisit {
-  TVisit *tVisit = [[TVisit alloc] initWithId: NULL fhirId:@"" correlationId:[self generateCorrelationId] metadata:NULL reasonForVisit:NULL];
-  return tVisit;
+- (VisitInfo * _Nonnull)getVisitInfo {
+  VisitInfo *visit = [[VisitInfo alloc] initWithId:NULL fhirId:[NSUUID UUID].UUIDString correlationId:[self generateCorrelationId] metadata:NULL reasonForVisit:NULL];
+  return visit;
 }
 
 - (NSString *)generateCorrelationId {
@@ -64,11 +61,11 @@ RCT_EXPORT_MODULE();
     return [dateFormatter stringFromDate:[NSDate date]];
 }
 
-// Used to initialize the Turnkey SDK
-RCT_EXPORT_METHOD(initTurnkeySdk) {
+// Used to initialize the Embedded UI SDK
+RCT_EXPORT_METHOD(initEmbeddedUiSdk) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    self.turnkeySdk = [TurnkeyFramework initializeWithDataProvider:self 
-          delegate:self recordingDelegate:self dictationDelegate:self settingsDelegate:self];
+    self.appConfigApi = [ApplicationConfig getInstanceWithDataProvider:self 
+          delegate:self recordingDelegate:self dictationDelegate:self settingsDelegate:self internalClientDelegate:nil];
   });
 }
 
@@ -77,8 +74,7 @@ RCT_EXPORT_METHOD(initTurnkeySdk) {
 RCT_EXPORT_METHOD(openSession) {
   dispatch_async(dispatch_get_main_queue(), ^{
     UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-    NSObject *webViewContainer = [self.turnkeySdk openSessionControllerWithSessionDataProvider:self];
-    UIViewController *viewControllerToPresent =  (UIViewController *) webViewContainer;
+    UIViewController *viewControllerToPresent = [self.appConfigApi openSessionControllerWithSessionDataProvider:self];
     [rootViewController presentViewController:viewControllerToPresent animated:YES completion:nil];
   });
 }
@@ -86,87 +82,82 @@ RCT_EXPORT_METHOD(openSession) {
 // Used to close a session
 RCT_EXPORT_METHOD(closeSession) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (self.turnkeySdk) {
-      [self.turnkeySdk closeSession];
-      NSLog(@"Turnkey session closed.");
+    if (self.appConfigApi) {
+      [self.appConfigApi closeSession];
+      NSLog(@"Application Config session closed.");
     } else {
-      NSLog(@"Turnkey SDK is not initialized. Cannot close session.");
+      NSLog(@"Application Config SDK is not initialized. Cannot close session.");
     }
   });
 }
 
-// Used to dispose of the Turnkey SDK
+// Used to dispose of the Embedded UI SDK
 RCT_EXPORT_METHOD(disposeSdk) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (self.turnkeySdk) {
-      [TurnkeyFramework dispose];
-      self.turnkeySdk = nil;
-      NSLog(@"Turnkey SDK disposed.");
+    if (self.appConfigApi) {
+      [ApplicationConfig clearInstance];
+      self.appConfigApi = nil;
+      NSLog(@"Application Config SDK disposed.");
     } else {
-      NSLog(@"Turnkey SDK is not initialized. Cannot dispose.");
+      NSLog(@"Application Config SDK is not initialized. Cannot dispose.");
     }
   });
 }
 
-- (id<TAccessTokenProvider> _Nonnull)getTAccessTokenProvider {
+- (id<AppAccessTokenProvider> _Nonnull)getAccessTokenProvider {
   return  [[AuthProvider alloc] init];
 }
 
-#pragma mark - TDelegate
+#pragma mark - AppUiDelegate
 
-- (void)isTurnKeyWebViewLoaded:(BOOL)isLoadingDone {
-  NSLog(@"[TDelegate] WebView loaded: %@", isLoadingDone ? @"YES" : @"NO");
+- (void)webViewLoaded:(BOOL)isLoadingDone {
+  NSLog(@"[AppUiDelegate] WebView loaded: %@", isLoadingDone ? @"YES" : @"NO");
 }
 
-- (void)logoutWith:(LogoutReason)logoutType {
-  NSString *reason = logoutType == LogoutReasonUser ? @"User" : @"Inactivity";
-  NSLog(@"[TDelegate] Logout occurred. Reason: %@", reason);
-}
-
-#pragma mark - TRecordingDelegate
+#pragma mark - AppRecordingDelegate
 
 - (void)recordingStarted {
-  NSLog(@"[TRecordingDelegate] Recording started");
+  NSLog(@"[RecordingDelegate] Recording started");
 }
 
 - (void)recordingFailed {
-  NSLog(@"[TRecordingDelegate] Recording failed");
+  NSLog(@"[RecordingDelegate] Recording failed");
 }
 
 - (void)recordingStopped {
-  NSLog(@"[TRecordingDelegate] Recording stopped");
+  NSLog(@"[RecordingDelegate] Recording stopped");
 }
 
-- (void)recordingInterruptedWithReason:(RecordingInterruptionReason)reason {
-  NSLog(@"[TRecordingDelegate] Recording interrupted. Reason: %ld", (long)reason);
+- (void)recordingInterruptedWithReason:(RecordingStopReason)reason {
+  NSLog(@"[AppRecordingDelegate] Recording interrupted. Reason: %ld", (long)reason);
 }
 
-- (void)recordingNotificationWithNotification:(RecordingNotification)notification {
-  NSLog(@"[TRecordingDelegate] Recording notification. Notification: %ld", (long)notification);
+- (void)recordingNotificationWithNotification:(RecordingProgressNotification)notification {
+  NSLog(@"[AppRecordingDelegate] Recording notification. Notification: %ld", (long)notification);
 }
 
-#pragma mark - TDictationDelegate
+#pragma mark - AppDictationDelegate
 
 - (void)dictationStarted {
-  NSLog(@"[TDictationDelegate] Dictation started");
+  NSLog(@"[DictationDelegate] Dictation started");
 }
 
 - (void)dictationStopped {
-  NSLog(@"[TDictationDelegate] Dictation stopped");
+  NSLog(@"[DictationDelegate] Dictation stopped");
 }
 
-#pragma mark - TSettingsDelegate
+#pragma mark - AppSettingsDelegate
 
 - (void)isIdleTimerDisabledIsOn:(BOOL)screenOn {
-  NSLog(@"[TSettingsDelegate] Idle timer disabled: %@", screenOn ? @"YES" : @"NO");
+  NSLog(@"[SettingsDelegate] Idle timer disabled: %@", screenOn ? @"YES" : @"NO");
 }
 
 - (void)appearanceThemeChangedTo:(NSString *)uiTheme {
-  NSLog(@"[TSettingsDelegate] Appearance theme changed to: %@", uiTheme);
+  NSLog(@"[SettingsDelegate] Appearance theme changed to: %@", uiTheme);
 }
 
 - (void)changeApplicationLanguageTo:(NSString *)languageCode {
-  NSLog(@"[TSettingsDelegate] Change application language to: %@", languageCode);
+  NSLog(@"[SettingsDelegate] Change application language to: %@", languageCode);
 }
 
 @end
