@@ -1,4 +1,4 @@
-package com.microsoft.dragoncopilot.dependencytestapp.ui.theme
+package com.microsoft.dragoncopilot.sampleapp.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

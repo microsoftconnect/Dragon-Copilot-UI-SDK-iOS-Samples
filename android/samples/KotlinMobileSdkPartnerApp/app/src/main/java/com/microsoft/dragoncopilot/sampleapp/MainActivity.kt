@@ -1,4 +1,4 @@
-package com.microsoft.dragoncopilot.dependencytestapp
+package com.microsoft.dragoncopilot.sampleapp
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -22,13 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.microsoft.dragoncopilot.dependencytestapp.network.AuthTokenService
-import com.microsoft.dragoncopilot.dependencytestapp.network.AuthTokenServiceImpl
+import com.microsoft.dragoncopilot.sampleapp.network.AuthTokenServiceImpl
 import com.microsoft.dragoncopilot.turnkey.AppUiComponent
 import com.microsoft.dragoncopilot.turnkey.ApplicationConfig
 import com.microsoft.dragoncopilot.turnkey.model.ClientTokenProvider
@@ -38,7 +36,7 @@ import com.microsoft.dragoncopilot.turnkey.model.input.ClientAppInfo
 import com.microsoft.dragoncopilot.turnkey.model.input.Environment
 import com.microsoft.dragoncopilot.turnkey.model.input.ServerInfo
 import com.microsoft.dragoncopilot.turnkey.model.input.VisitInfo
-import com.microsoft.dragoncopilot.dependencytestapp.ui.theme.DependencyTestAppTheme
+import com.microsoft.dragoncopilot.sampleapp.ui.theme.DependencyTestAppTheme
 import com.microsoft.dragoncopilot.turnkey.logging.Logger.logInfo
 import java.util.UUID
 
@@ -74,9 +72,9 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val ORG_ID = "6ebed6d9-a5ea-4ece-8b91-b55bba2d4d86"
-        const val USER_ID = "turnkey4test1"
-        const val NUANCE_PARTNER_ID = "dd421ff7-fda5-49c1-bd3a-70a7df54642e"
+        const val ORG_ID = "" // add your orgId or customerId
+        const val USER_ID = "" // add your userId
+        const val PARTNER_ID = "" // add your partnerId
     }
 }
 
@@ -142,7 +140,7 @@ fun DragonUiView(configData: ConfigData, viewModel: MainActivityViewModel, modif
                         providerName = context.getString(R.string.app_name),
                         ehrInstanceId = MainActivity.USER_ID,
                         customerId = MainActivity.ORG_ID,
-                        partnerId = MainActivity.NUANCE_PARTNER_ID,
+                        partnerId = MainActivity.PARTNER_ID,
                         authType = AuthType.PARTNER_TOKEN,
                     ),
                     checkPermission = { permissionsToRequest, onPermissionResult ->

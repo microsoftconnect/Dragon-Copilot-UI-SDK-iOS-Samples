@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DependencyTestApp"
+rootProject.name = "KotlinMobileSdkPartnerApp"
 include(":app")
  

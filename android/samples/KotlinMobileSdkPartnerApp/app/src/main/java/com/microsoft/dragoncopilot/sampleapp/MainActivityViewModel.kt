@@ -2,12 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-package com.microsoft.dragoncopilot.dependencytestapp
+package com.microsoft.dragoncopilot.sampleapp
 
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import com.microsoft.dragoncopilot.dependencytestapp.network.AuthTokenService
-import com.microsoft.dragoncopilot.dependencytestapp.network.NetworkClientProvider
+import com.microsoft.dragoncopilot.sampleapp.network.AuthTokenService
+import com.microsoft.dragoncopilot.sampleapp.network.NetworkClientProvider
 import com.microsoft.dragoncopilot.turnkey.logging.Logger.logVerbose
 import com.microsoft.dragoncopilot.turnkey.model.input.AuthType
 import java.time.format.DateTimeFormatter

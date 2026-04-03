@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.microsoft.dragoncopilot.dependencytestapp"
+    namespace = "com.microsoft.dragoncopilot.sampleapp"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.microsoft.dragoncopilot.dependencytestapp"
+        applicationId = "com.microsoft.dragoncopilot.sampleapp"
         minSdk = 33
         targetSdk = 36
         versionCode = 1

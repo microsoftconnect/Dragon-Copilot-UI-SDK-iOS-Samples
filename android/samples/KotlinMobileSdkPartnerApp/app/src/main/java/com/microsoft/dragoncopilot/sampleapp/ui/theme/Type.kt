@@ -1,4 +1,4 @@
-package com.microsoft.dragoncopilot.dependencytestapp.ui.theme
+package com.microsoft.dragoncopilot.sampleapp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

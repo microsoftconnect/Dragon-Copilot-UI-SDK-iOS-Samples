@@ -2,7 +2,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-package com.microsoft.dragoncopilot.dependencytestapp.network
+package com.microsoft.dragoncopilot.sampleapp.network
 
 import com.microsoft.dragoncopilot.turnkey.BuildConfig
 import com.microsoft.dragoncopilot.turnkey.logging.Logger.logError

@@ -2,10 +2,10 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-package com.microsoft.dragoncopilot.dependencytestapp.network
+package com.microsoft.dragoncopilot.sampleapp.network
 
-import com.microsoft.dragoncopilot.dependencytestapp.network.model.PartnerTokenResponse
-import com.microsoft.dragoncopilot.dependencytestapp.network.model.SoFTokenResponse
+import com.microsoft.dragoncopilot.sampleapp.network.model.PartnerTokenResponse
+import com.microsoft.dragoncopilot.sampleapp.network.model.SoFTokenResponse
 import com.microsoft.dragoncopilot.turnkey.logging.Logger.logError
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp

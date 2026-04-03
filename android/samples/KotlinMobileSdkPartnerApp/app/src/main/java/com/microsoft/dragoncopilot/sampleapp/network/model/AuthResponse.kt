@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-package com.microsoft.dragoncopilot.dependencytestapp.network.model
+package com.microsoft.dragoncopilot.sampleapp.network.model
 
 import kotlinx.serialization.Serializable
 
