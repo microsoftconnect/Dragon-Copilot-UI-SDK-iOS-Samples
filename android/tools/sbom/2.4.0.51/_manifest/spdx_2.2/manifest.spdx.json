@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "fileName": "./turnkey-fused.aar",
+      "SPDXID": "SPDXRef-File--turnkey-fused.aar-556C18B1D031A79F0C2BDA052530095C351374DD",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "675c5a8362460923c59128a51b81e7c1f209d910557e0686f917916790145bdd"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "556c18b1d031a79f0c2bda052530095c351374dd"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./dragon_copilot_turnkey-release.aar",
+      "SPDXID": "SPDXRef-File--dragon-copilot-turnkey-release.aar-1E13BDC871CC7BA78659C43B1D2FB3CB82BFB83D",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "7629db353bb725cf4f080c24cce71dbfd39a7da4299b24c20c95b5fdc1609846"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1e13bdc871cc7ba78659c43b1d2fb3cb82bfb83d"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./testharness-debug-2.4.0.51.apk",
+      "SPDXID": "SPDXRef-File--testharness-debug-2.4.0.51.apk-15D23DB4577C6C2C58A3F33C73EDFF854713102E",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f644b1551dd4618c1705d589b106911c5264c23d82771721e2b04d64a54d178f"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "15d23db4577c6c2c58a3f33c73edff854713102e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoInFiles": [
+        "NOASSERTION"
+      ],
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "packages": [
+    {
+      "name": "com.microsoft.dragoncopilot.turnkey",
+      "SPDXID": "SPDXRef-RootPackage",
+      "downloadLocation": "NOASSERTION",
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": "9ec556142a1efaa60c31a7cf1b6cc4be3efdb67a"
+      },
+      "filesAnalyzed": true,
+      "licenseConcluded": "NOASSERTION",
+      "licenseInfoFromFiles": [
+        "NOASSERTION"
+      ],
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "2.4.0.51",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:swid/Microsoft%20Corporation/www.microsoft.com/com.microsoft.dragoncopilot.turnkey@2.4.0.51?tag_id=605130f9-7a16-411d-be62-295f342d8be7"
+        }
+      ],
+      "supplier": "Organization: Microsoft Corporation",
+      "hasFiles": [
+        "SPDXRef-File--testharness-debug-2.4.0.51.apk-15D23DB4577C6C2C58A3F33C73EDFF854713102E",
+        "SPDXRef-File--dragon-copilot-turnkey-release.aar-1E13BDC871CC7BA78659C43B1D2FB3CB82BFB83D",
+        "SPDXRef-File--turnkey-fused.aar-556C18B1D031A79F0C2BDA052530095C351374DD"
+      ]
+    }
+  ],
+  "externalDocumentRefs": [],
+  "relationships": [
+    {
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-RootPackage",
+      "spdxElementId": "SPDXRef-DOCUMENT"
+    }
+  ],
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "com.microsoft.dragoncopilot.turnkey 2.4.0.51",
+  "documentNamespace": "https://www.microsoft.com/dragon/copilot/turnkey-android/com.microsoft.dragoncopilot.turnkey/2.4.0.51/vDjMcgmohkeXVuhLfYj2ag",
+  "creationInfo": {
+    "created": "2026-04-01T09:35:26Z",
+    "creators": [
+      "Organization: Microsoft Corporation",
+      "Tool: Microsoft.SBOMTool-4.1.5"
+    ]
+  },
+  "documentDescribes": [
+    "SPDXRef-RootPackage"
+  ]
+}
