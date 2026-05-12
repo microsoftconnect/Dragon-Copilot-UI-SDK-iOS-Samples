@@ -27,17 +27,18 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.microsoft.dragoncopilot.sampleapp.network.AuthTokenServiceImpl
+import com.microsoft.dragoncopilot.sampleapp.ui.theme.DependencyTestAppTheme
 import com.microsoft.dragoncopilot.turnkey.AppUiComponent
 import com.microsoft.dragoncopilot.turnkey.ApplicationConfig
+import com.microsoft.dragoncopilot.turnkey.logging.Logger.logInfo
 import com.microsoft.dragoncopilot.turnkey.model.ClientTokenProvider
 import com.microsoft.dragoncopilot.turnkey.model.input.ApplicationConfigProvider
 import com.microsoft.dragoncopilot.turnkey.model.input.AuthType
 import com.microsoft.dragoncopilot.turnkey.model.input.ClientAppInfo
 import com.microsoft.dragoncopilot.turnkey.model.input.Environment
 import com.microsoft.dragoncopilot.turnkey.model.input.ServerInfo
+import com.microsoft.dragoncopilot.turnkey.model.input.UserInfo
 import com.microsoft.dragoncopilot.turnkey.model.input.VisitInfo
-import com.microsoft.dragoncopilot.sampleapp.ui.theme.DependencyTestAppTheme
-import com.microsoft.dragoncopilot.turnkey.logging.Logger.logInfo
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
@@ -138,10 +139,10 @@ fun DragonUiView(configData: ConfigData, viewModel: MainActivityViewModel, modif
                             geography = "US"
                         ),
                         providerName = context.getString(R.string.app_name),
-                        ehrInstanceId = MainActivity.USER_ID,
                         customerId = MainActivity.ORG_ID,
                         partnerId = MainActivity.PARTNER_ID,
                         authType = AuthType.PARTNER_TOKEN,
+                        userInfo = UserInfo(ehrUserId = MainActivity.USER_ID),
                     ),
                     checkPermission = { permissionsToRequest, onPermissionResult ->
                         val status = permissionsToRequest.associateWith { permission ->
