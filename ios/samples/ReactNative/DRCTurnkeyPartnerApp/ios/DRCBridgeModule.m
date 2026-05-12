@@ -50,7 +50,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (VisitInfo * _Nonnull)getVisitInfo {
-  VisitInfo *visit = [[VisitInfo alloc] initWithId:NULL fhirId:[NSUUID UUID].UUIDString correlationId:[self generateCorrelationId] metadata:NULL reasonForVisit:NULL];
+  VisitInfo *visit = [[VisitInfo alloc] initWithId:NULL fhirId:[NSUUID UUID].UUIDString correlationId:[self generateCorrelationId] metadata:NULL reasonForVisit:NULL outputFormIds:NULL];
   return visit;
 }
 
