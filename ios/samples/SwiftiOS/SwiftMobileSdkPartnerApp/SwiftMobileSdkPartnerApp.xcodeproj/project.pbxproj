@@ -376,7 +376,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS";
 			requirement = {
-				branch = release/2.5.0;
+				branch = release/4.0.0;
 				kind = branch;
 			};
 		};

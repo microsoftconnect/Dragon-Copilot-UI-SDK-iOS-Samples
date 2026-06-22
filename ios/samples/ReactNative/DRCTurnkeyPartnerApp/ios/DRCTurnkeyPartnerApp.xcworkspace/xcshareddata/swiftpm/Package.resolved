@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS",
       "state" : {
-        "branch" : "release/2.5.0",
-        "revision" : "039bdb75b6d024f10c067c99a387932102055868"
+        "branch" : "release/4.0.0",
+        "revision" : "eeaec14700dfc21089bf3d104b1cab980208608b"
       }
     }
   ],
