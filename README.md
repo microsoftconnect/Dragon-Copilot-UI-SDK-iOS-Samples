@@ -54,7 +54,7 @@ To import the SDK into your Xcode project as a package dependency:
      ```
      https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS
      ```
-   - Choose the desired branch or version, for example `main` or `release/1.0.0`
+   - Choose the desired branch or version. We recommend using `main` (preferred) to always get the latest updates, or you can find specific tagged releases on the [Dragon-Copilot-UI-SDK-iOS Releases page](https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS/releases).
 
 3. **Add the framework/library to your target:**
    - Select your app target and open the **General** tab

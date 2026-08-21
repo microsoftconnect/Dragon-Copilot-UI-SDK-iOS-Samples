@@ -97,7 +97,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					DD765D5C2D6A036D0091867F = {
 						CreatedOnToolsVersion = 16.2;
@@ -376,8 +376,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS";
 			requirement = {
-				branch = release/4.0.0;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
