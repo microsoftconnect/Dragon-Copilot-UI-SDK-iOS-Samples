@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/microsoftconnect/DAXKit-SDK-iOS",
       "state" : {
-        "revision" : "133a7a6d4ef6dc5f8b3a82aa4223bd489e740540",
-        "version" : "1.6.0"
+        "revision" : "b68b342b3d095b884f7b02281144583e58b86eb5",
+        "version" : "1.6.1"
       }
     },
     {
