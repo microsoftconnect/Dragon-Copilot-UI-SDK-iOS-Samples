@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/microsoftconnect/DAXKit-SDK-iOS",
       "state" : {
-        "revision" : "133a7a6d4ef6dc5f8b3a82aa4223bd489e740540",
-        "version" : "1.6.0"
+        "revision" : "b68b342b3d095b884f7b02281144583e58b86eb5",
+        "version" : "1.6.1"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-iOS",
       "state" : {
-        "branch" : "release/4.0.0",
-        "revision" : "eeaec14700dfc21089bf3d104b1cab980208608b"
+        "revision" : "864551efd163c35e307181f9571338a583df1f3f",
+        "version" : "5.0.0"
       }
     }
   ],

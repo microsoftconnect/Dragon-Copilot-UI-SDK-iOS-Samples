@@ -70,20 +70,20 @@ The SDK version is managed in the Gradle version catalog file:
 gradle/libs.versions.toml
 ```
 
-You can find all available versions on [Maven Central](https://central.sonatype.com/artifact/com.microsoft.dragoncopilot/embedded-ui/2.3.1/versions).
+You can find all available versions on [Maven Central](https://central.sonatype.com/artifact/com.microsoft.dragoncopilot/embedded-ui/5.0.0/versions) or the [Dragon-Copilot-UI-SDK-Android Releases page](https://github.com/microsoftconnect/Dragon-Copilot-UI-SDK-Android/releases).
 
 Find the `embedded-ui` version entry under `[versions]`:
 
 ```toml
 [versions]
 # ...
-embedded-ui = "2.3.1"
+embedded-ui = "<CURRENT_VERSION>"
 ```
 
-Change `"2.3.1"` to the desired version:
+Change `<CURRENT_VERSION>` to the latest version:
 
 ```toml
-embedded-ui = "<NEW_VERSION>"
+embedded-ui = "<LATEST_VERSION>"
 ```
 
 After updating, sync the project by clicking **"Sync Now"** in the notification bar that appears in Android Studio, or via **File → Sync Project with Gradle Files**.
